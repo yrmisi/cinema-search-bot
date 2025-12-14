@@ -19,7 +19,7 @@ class BotConfig(BaseSettings):
     )
 
 
-class PoiskkinoAPIConfig:
+class PoiskkinoAPIConfig(BaseSettings):
     """ """
 
     key: Annotated[str | None, Field(alias="API_KEY")] = None
