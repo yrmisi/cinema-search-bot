@@ -23,11 +23,11 @@ repos:
     rev: 0.9.15
     hooks:
       - id: uv-lock
-      - id: uv-export
-        args:
-          - --no-hashes
-          - --no-annotate
-          - --frozen
-          - --no-header
-          - --no-dev
-          - --output-file=requirements.txt
+      # - id: uv-export
+      #   args:
+      #     - --no-hashes
+      #     - --no-annotate
+      #     - --frozen
+      #     - --no-header
+      #     - --no-dev
+      #     - --output-file=requirements.txt
