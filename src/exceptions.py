@@ -1,11 +1,11 @@
 class BotBaseError(Exception):
-    """ """
+    """Basic bot error."""
 
     pass
 
 
 class TokenNotFoundError(BotBaseError):
-    """ """
+    """Bot token not found."""
 
     def __init__(self, message: str = "BOT_TOKEN is not set in environment") -> None:
         self.message = message
