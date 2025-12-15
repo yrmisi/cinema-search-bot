@@ -6,6 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from config import settings
+from exceptions import TokenNotFoundError
 from handlers.default import echo_router, start_router
 
 
@@ -20,7 +21,7 @@ async def main() -> None:
     token: str | None = settings.bot_conf.token
 
     if token is None:
-        raise RuntimeError("BOT_TOKEN is not set in environment")
+        raise TokenNotFoundError()
 
     # Initialize Bot instance with default bot properties which will be passed to all API calls
     bot = Bot(
