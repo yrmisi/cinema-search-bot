@@ -38,4 +38,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except TokenNotFoundError as exc:
-        logging.error(str(exc))
+        logging.error(exc.message)
