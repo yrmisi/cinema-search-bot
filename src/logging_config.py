@@ -16,7 +16,7 @@ os.makedirs(BASE_DIR / "logs", exist_ok=True)
 def get_logger(name: str = "bot") -> logging.Logger:
     logger = logging.getLogger(name)
     if not logger.handlers:  # избегаем дублирования обработчиков
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
         file_handler = TimedRotatingFileHandler(
             BASE_DIR / "logs/bot.log",

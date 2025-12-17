@@ -24,3 +24,10 @@ class SearchMovieNotFoundError(BotBaseError):
     def __init__(self, message: str = "No data found while searching for the movie") -> None:
         self.message = message
         super().__init__(self.message)
+
+
+class LimitIterateAPIError(BotBaseError):
+
+    def __init__(self, message: str = "API call iteration limit exceeded, 5 attempts.") -> None:
+        self.message = message
+        super().__init__(self.message)
