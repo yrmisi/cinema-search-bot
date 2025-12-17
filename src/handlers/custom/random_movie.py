@@ -1,4 +1,5 @@
 from aiogram import Router
+from aiogram.filters import Command
 from aiogram.types import FSInputFile, Message, URLInputFile, User
 
 from exceptions import LimitIterateAPIError
@@ -10,9 +11,9 @@ logger = get_logger(__name__)
 router = Router()
 
 
-@router.message()
+@router.message(Command("random"))
 async def random_movie_handler(message: Message):
-    """ """
+    """The handler generates and sends a random movie or TV series."""
     user: User | None = message.from_user
     if user:
         logger.info(

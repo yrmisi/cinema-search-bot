@@ -20,9 +20,9 @@ async def main() -> None:
     dp = Dispatcher()
     # Register all the routers from handlers package
     dp.include_routers(
-        search_router,
         start_router,
         help_router,
+        search_router,
         random_router,
         echo_router,
     )
