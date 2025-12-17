@@ -17,3 +17,10 @@ class PoiskkinoAPIError(BotBaseError):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
+
+
+class SearchMovieNotFoundError(BotBaseError):
+
+    def __init__(self, message: str = "No data found while searching for the movie") -> None:
+        self.message = message
+        super().__init__(self.message)

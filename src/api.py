@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 def get_movies_data_by_api(add_search_params: dict[str, str]) -> list[dict[str, Any]]:
     logger.info("We receive data via API")
 
-    params = {"page": 1, "limit": 10} | add_search_params
+    params: dict[str, int | str] = {"page": 1, "limit": 10} | add_search_params
     logger.debug("Data params: %s", params)
 
     try:

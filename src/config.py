@@ -24,6 +24,7 @@ class PoiskkinoAPIConfig(BaseSettings):
 
     key: Annotated[str | None, Field(alias="API_KEY")] = None
     url: str = "https://api.kinopoisk.dev/v1.4/movie/search"
+    poster_not_found: str = BASE_DIR.joinpath("src", "images", "poster_not_found.png").as_posix()
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / '.env',
