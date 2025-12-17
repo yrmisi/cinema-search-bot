@@ -1,3 +1,4 @@
+from .media import build_poster_input
 from .message_length import set_message_length
 from .movie_info import MovieInfo
 from .movie_information_message_template import get_message_info_movie
@@ -12,4 +13,5 @@ __all__ = [
     "set_message_length",
     "get_secret_randint",
     "get_message_info_movie",
+    "build_poster_input",
 ]

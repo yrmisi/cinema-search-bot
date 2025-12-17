@@ -5,7 +5,7 @@ from aiogram.types import FSInputFile, Message, URLInputFile, User
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
 from services import RandomMovieService
-from utils import MovieInfo
+from utils import MovieInfo, build_poster_input
 
 logger = get_logger(__name__)
 router = Router()
@@ -23,11 +23,7 @@ async def random_movie_handler(message: Message):
         )
     try:
         movie_info: MovieInfo = RandomMovieService.get_random_movies()
-
-        if movie_info.poster_url.startswith("http"):
-            input_photo: URLInputFile | FSInputFile = URLInputFile(movie_info.poster_url)
-        else:
-            input_photo = FSInputFile(movie_info.poster_url)
+        input_photo: URLInputFile | FSInputFile = build_poster_input(movie_info.poster_url)
 
         return await message.answer_photo(photo=input_photo, caption=movie_info.info_text)
     except LimitIterateAPIError as exc:

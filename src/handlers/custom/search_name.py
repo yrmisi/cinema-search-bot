@@ -7,7 +7,7 @@ from aiogram.utils.markdown import hbold
 from exceptions import SearchMovieNotFoundError
 from logging_config import get_logger
 from services import SearchMovieNameService
-from utils import MovieInfo, SearchMovieNameState
+from utils import MovieInfo, SearchMovieNameState, build_poster_input
 
 logger = get_logger(__name__)
 router = Router()
@@ -50,11 +50,7 @@ async def get_movie_by_name_handler(message: Message, state: FSMContext) -> Mess
         return await message.answer("По этому запросу ничего не нашёл 😔")
 
     for movie in movies_info:
-        if movie.poster_url.startswith("http"):
-            input_photo: URLInputFile | FSInputFile = URLInputFile(movie.poster_url)
-        else:
-            input_photo = FSInputFile(movie.poster_url)
-
+        input_photo: URLInputFile | FSInputFile = build_poster_input(movie.poster_url)
         await message.answer_photo(photo=input_photo, caption=movie.info_text)
 
     return await message.answer(f"{hbold("Я могу еще поискать")} 📽")
