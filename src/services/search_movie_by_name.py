@@ -14,6 +14,8 @@ logger = get_logger(__name__)
 class SearchMovieNameService(BaseService):
     """ """
 
+    is_budget: bool = False
+
     @classmethod
     def get_movies(cls, movie_name: str) -> list[MovieInfo]:
         """ """

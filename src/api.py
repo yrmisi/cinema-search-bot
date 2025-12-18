@@ -31,6 +31,16 @@ def get_movies_data_by_api(add_search_params: dict[str, str]) -> list[dict[str, 
     return response.json().get("docs")
 
 
+def get_movie_by_id_api(movie_id: int) -> dict[str, Any]:
+    """Get a movie or TV series by ID."""
+    response = requests.get(
+        url=settings.poiskkino_api.url_by_id.format(movie_id),
+        headers=settings.poiskkino_headers,
+    )
+    logger.info("data received successfully from the API")
+    return response.json()
+
+
 def random_movie_by_api() -> dict[str, Any]:
     """We select a random movie by ID"""
     logger.info("We select a random movie API")
@@ -41,11 +51,7 @@ def random_movie_by_api() -> dict[str, Any]:
             "API URL with a random movie ID: %s",
             settings.poiskkino_api.url_by_id.format(random_movie_id),
         )
-        response = requests.get(
-            url=settings.poiskkino_api.url_by_id.format(random_movie_id),
-            headers=settings.poiskkino_headers,
-        )
-        movie_data: dict[str, Any] = response.json()
+        movie_data: dict[str, Any] = get_movie_by_id_api(random_movie_id)
         logger.debug("Movie data: %s", movie_data)
 
         if len(movie_data) > 3:
