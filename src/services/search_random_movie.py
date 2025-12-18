@@ -4,16 +4,18 @@ from api import random_movie_by_api
 from config import settings
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
-from utils import MovieInfo, get_message_info_movie
+from utils import MovieInfo
+
+from .base import BaseService
 
 logger = get_logger(__name__)
 
 
-class RandomMovieService:
+class RandomMovieService(BaseService):
     """ """
 
-    @staticmethod
-    def get_random_movies() -> MovieInfo:
+    @classmethod
+    def get_random_movies(cls) -> MovieInfo:
         """ """
         logger.info("Film data processing.")
 
@@ -25,6 +27,6 @@ class RandomMovieService:
 
         movie_info: MovieInfo = MovieInfo(
             poster_url=(movie.get("poster") or {}).get("previewUrl") or settings.poiskkino_api.poster_not_found,
-            info_text=get_message_info_movie(movie),
+            info_text=cls.get_message_info_movie(movie),
         )
         return movie_info

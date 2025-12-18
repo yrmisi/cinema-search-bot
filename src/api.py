@@ -46,8 +46,9 @@ def random_movie_by_api() -> dict[str, Any]:
             headers=settings.poiskkino_headers,
         )
         movie_data: dict[str, Any] = response.json()
+        logger.debug("Movie data: %s", movie_data)
 
-        if len(movie_data) > 3 and movie_data.get("name"):
+        if len(movie_data) > 3:
             logger.info("Successful receipt of a random movie")
             return movie_data
 

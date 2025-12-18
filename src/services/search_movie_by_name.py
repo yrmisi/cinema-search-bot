@@ -4,16 +4,18 @@ from api import get_movies_data_by_api
 from config import settings
 from exceptions import SearchMovieNotFoundError
 from logging_config import get_logger
-from utils import MovieInfo, get_message_info_movie
+from utils import MovieInfo
+
+from .base import BaseService
 
 logger = get_logger(__name__)
 
 
-class SearchMovieNameService:
+class SearchMovieNameService(BaseService):
     """ """
 
-    @staticmethod
-    def get_movies(movie_name: str) -> list[MovieInfo]:
+    @classmethod
+    def get_movies(cls, movie_name: str) -> list[MovieInfo]:
         """ """
         logger.info("Film data processing.")
         query_data: dict[str, str] = {"query": movie_name}
@@ -26,7 +28,7 @@ class SearchMovieNameService:
         movies_info: list[MovieInfo] = [
             MovieInfo(
                 poster_url=(movie.get("poster") or {}).get("previewUrl") or settings.poiskkino_api.poster_not_found,
-                info_text=get_message_info_movie(movie),
+                info_text=cls.get_message_info_movie(movie),
             )
             for movie in movies_data
         ]
