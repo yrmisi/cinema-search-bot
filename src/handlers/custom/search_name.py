@@ -1,10 +1,14 @@
-from aiogram import Router
+from dataclasses import asdict
+from typing import Any
+
+from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile, Message, URLInputFile, User
+from aiogram.types import CallbackQuery, InaccessibleMessage, InputMediaPhoto, Message, User
 from aiogram.utils.markdown import hbold
 
 from exceptions import SearchMovieNotFoundError
+from keyboards.inlines import build_movie_kb
 from logging_config import get_logger
 from services import SearchMovieNameService
 from utils import MovieInfo, SearchMovieNameState, build_poster_input
@@ -49,8 +53,18 @@ async def get_movie_by_name_handler(message: Message, state: FSMContext) -> Mess
         logger.error(exc.message)
         return await message.answer("По этому запросу ничего не нашёл 😔")
 
-    for movie in movies_info:
-        input_photo: URLInputFile | FSInputFile = build_poster_input(movie.poster_url)
-        await message.answer_photo(photo=input_photo, caption=movie.info_text)
+    # for movie in movies_info:
+    #     input_photo: URLInputFile | FSInputFile = build_poster_input(movie.poster_url)
+    #     await message.answer_photo(photo=input_photo, caption=movie.info_text)
+    await state.update_data(
+        {
+            "movies": [asdict(movie) for movie in movies_info],
+            "index": 0,
+        }
+    )
+    movie = movies_info[0]
+    input_photo = build_poster_input(movie.poster_url)
+    kb = build_movie_kb(0, len(movies_info))
 
+    await message.answer_photo(photo=input_photo, caption=movie.info_text, reply_markup=kb)
     return await message.answer(f"{hbold("Я могу еще поискать")} 📽")

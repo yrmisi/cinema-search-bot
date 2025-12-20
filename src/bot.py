@@ -6,7 +6,7 @@ from aiogram.enums import ParseMode
 
 from config import settings
 from exceptions import TokenNotFoundError
-from handlers.custom import random_router, search_router
+from handlers.custom import paginate_router, random_router, search_router
 from handlers.default import echo_router, help_router, start_router
 from logging_config import get_logger
 from utils import get_set_commands
@@ -22,6 +22,7 @@ async def main() -> None:
     dp.include_routers(
         start_router,
         help_router,
+        paginate_router,
         search_router,
         random_router,
         echo_router,
