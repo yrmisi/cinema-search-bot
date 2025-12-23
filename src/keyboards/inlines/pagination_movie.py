@@ -6,8 +6,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 def build_movie_kb(
     chat_id: int,
     search_id: str,
-    page: int = 1,
-    total: int = 10,
+    page: int,
+    total: int,
 ) -> InlineKeyboardMarkup:
     """ """
     buttons: list[InlineKeyboardButton] = []
@@ -20,6 +20,7 @@ def build_movie_kb(
                         "c_id": chat_id,
                         "s_id": search_id,
                         "page": page - 1,
+                        "total": total,
                     }
                 ),
             )
@@ -33,6 +34,7 @@ def build_movie_kb(
                         "c_id": chat_id,
                         "s_id": search_id,
                         "page": page + 1,
+                        "total": total,
                     }
                 ),
             )

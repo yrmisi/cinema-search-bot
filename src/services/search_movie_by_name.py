@@ -5,7 +5,7 @@ from database import create_movie_db
 from database.models import Movie
 from exceptions import PoiskkinoAPIError, SearchMovieNotFoundError
 from logging_config import get_logger
-from utils import MovieInfo
+from utils import MovieInfo, MovieSearchResult
 
 from .base import BaseService
 
@@ -18,7 +18,7 @@ class SearchMovieNameService(BaseService):
     is_budget: bool = False
 
     @classmethod
-    async def get_movies(cls, movie_name: str, chat_id: int, search_id: str) -> Movie:
+    async def get_movies(cls, movie_name: str, chat_id: int, search_id: str) -> MovieSearchResult:
         """ """
         logger.info("Film data processing.")
         query_data: dict[str, str] = {"query": movie_name}
@@ -35,6 +35,8 @@ class SearchMovieNameService(BaseService):
         movies: list[MovieInfo] = [
             cls.get_movie_info(movie, chat_id, search_id, page) for page, movie in enumerate(movies_data, start=1)
         ]
-        movie = await create_movie_db(movies)
+        movie: Movie = await create_movie_db(movies)
+        total_pages: int = len(movies_data)
+
         logger.info("Successfully received data on films.")
-        return movie
+        return MovieSearchResult(movie=movie, total_pages=total_pages)

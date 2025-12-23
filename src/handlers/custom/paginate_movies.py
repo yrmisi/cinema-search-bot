@@ -26,6 +26,7 @@ async def paginate_movies_callback(callback: CallbackQuery):
     chat_id = int(data_dict["c_id"])
     search_id = str(data_dict["s_id"])
     page = int(data_dict["page"])
+    total = int(data_dict["total"])
 
     movie = await get_movie_db(chat_id, search_id, page)
 
@@ -35,7 +36,7 @@ async def paginate_movies_callback(callback: CallbackQuery):
 
     input_photo = build_poster_input(movie.poster_url)
     message_movie = MessageMovieService.get_message_info_movie(movie)
-    kb = build_movie_kb(chat_id, search_id, page)
+    kb = build_movie_kb(chat_id, search_id, page, total)
 
     msg = callback.message
 

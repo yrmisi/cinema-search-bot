@@ -1,5 +1,6 @@
 from .media import build_poster_input
 from .movie_info import MovieInfo
+from .movie_search import MovieSearchResult
 from .search_id_uuid4 import create_search_id
 from .secret_randint import get_secret_randint
 from .set_commands import get_set_commands
@@ -12,4 +13,5 @@ __all__ = [
     "build_poster_input",
     "MovieInfo",
     "create_search_id",
+    "MovieSearchResult",
 ]
