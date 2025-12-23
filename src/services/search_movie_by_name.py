@@ -1,8 +1,9 @@
 from typing import Any
 
-from api import get_movies_data_by_api
-from config import settings
-from exceptions import SearchMovieNotFoundError
+from api import get_movies_by_data_api
+from database import create_movie_db
+from database.models import Movie
+from exceptions import PoiskkinoAPIError, SearchMovieNotFoundError
 from logging_config import get_logger
 from utils import MovieInfo
 
@@ -17,22 +18,23 @@ class SearchMovieNameService(BaseService):
     is_budget: bool = False
 
     @classmethod
-    def get_movies(cls, movie_name: str) -> list[MovieInfo]:
+    async def get_movies(cls, movie_name: str, chat_id: int, search_id: str) -> Movie:
         """ """
         logger.info("Film data processing.")
         query_data: dict[str, str] = {"query": movie_name}
-        movies_data: list[dict[str, Any]] = get_movies_data_by_api(query_data)
+        try:
+            movies_data: list[dict[str, Any]] = get_movies_by_data_api(query_data)
+        except PoiskkinoAPIError as exc:
+            logger.warning(exc.message)
+            raise
 
         if not movies_data:
             logger.error("No data found for the film.")
             raise SearchMovieNotFoundError()
 
-        movies_info: list[MovieInfo] = [
-            MovieInfo(
-                poster_url=(movie.get("poster") or {}).get("previewUrl") or settings.poiskkino_api.poster_not_found,
-                info_text=cls.get_message_info_movie(movie),
-            )
-            for movie in movies_data
+        movies: list[MovieInfo] = [
+            cls.get_movie_info(movie, chat_id, search_id, page) for page, movie in enumerate(movies_data, start=1)
         ]
+        movie = await create_movie_db(movies)
         logger.info("Successfully received data on films.")
-        return movies_info
+        return movie

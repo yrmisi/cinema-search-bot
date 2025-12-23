@@ -1,17 +1,17 @@
 from dataclasses import asdict
-from typing import Any
 
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InaccessibleMessage, InputMediaPhoto, Message, User
+from aiogram.types import Message, User
 from aiogram.utils.markdown import hbold
 
-from exceptions import SearchMovieNotFoundError
+from database.models import Movie
+from exceptions import PoiskkinoAPIError, SearchMovieNotFoundError
 from keyboards.inlines import build_movie_kb
 from logging_config import get_logger
-from services import SearchMovieNameService
-from utils import MovieInfo, SearchMovieNameState, build_poster_input
+from services import MessageMovie, SearchMovieNameService
+from utils import SearchMovieNameState, build_poster_input, create_search_id
 
 logger = get_logger(__name__)
 router = Router()
@@ -46,25 +46,23 @@ async def get_movie_by_name_handler(message: Message, state: FSMContext) -> Mess
 
     if movie_name is None:
         return await message.answer("По этому запросу ничего не нашёл 😔")
-
+    search_id: str = create_search_id()
     try:
-        movies_info: list[MovieInfo] = SearchMovieNameService.get_movies(movie_name)
+        movie: Movie = await SearchMovieNameService.get_movies(
+            movie_name,
+            message.chat.id,
+            search_id,
+        )
     except SearchMovieNotFoundError as exc:
         logger.error(exc.message)
         return await message.answer("По этому запросу ничего не нашёл 😔")
+    except PoiskkinoAPIError as exc:
+        logger.warning(exc.message)
+        return await message.answer("🎬 К сожалению, сейчас не удалось найти фильм. Попробуйте снова через пару минут!")
 
-    # for movie in movies_info:
-    #     input_photo: URLInputFile | FSInputFile = build_poster_input(movie.poster_url)
-    #     await message.answer_photo(photo=input_photo, caption=movie.info_text)
-    await state.update_data(
-        {
-            "movies": [asdict(movie) for movie in movies_info],
-            "index": 0,
-        }
-    )
-    movie = movies_info[0]
     input_photo = build_poster_input(movie.poster_url)
-    kb = build_movie_kb(0, len(movies_info))
+    message_movie: str = MessageMovie.get_message_info_movie(movie)
+    kb = build_movie_kb(message.chat.id, search_id)
 
-    await message.answer_photo(photo=input_photo, caption=movie.info_text, reply_markup=kb)
+    await message.answer_photo(photo=input_photo, caption=message_movie, reply_markup=kb)
     return await message.answer(f"{hbold("Я могу еще поискать")} 📽")

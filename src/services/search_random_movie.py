@@ -1,10 +1,9 @@
 from typing import Any
 
-from api import random_movie_by_api
-from config import settings
+from api import get_movie_by_id_api
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
-from utils import MovieInfo
+from utils import MovieInfo, get_secret_randint
 
 from .base import BaseService
 
@@ -15,18 +14,37 @@ class RandomMovieService(BaseService):
     """ """
 
     @classmethod
-    def get_random_movies(cls) -> MovieInfo:
+    def get_random_movies(
+        cls,
+        chat_id: int,
+        search_id: str,
+    ) -> MovieInfo:
         """ """
         logger.info("Film data processing.")
 
         try:
-            movie: dict[str, Any] = random_movie_by_api()
+            movie: dict[str, Any] = cls.random_movie()
         except LimitIterateAPIError as exc:
             logger.warning(exc.message)
             raise
 
-        movie_info: MovieInfo = MovieInfo(
-            poster_url=(movie.get("poster") or {}).get("previewUrl") or settings.poiskkino_api.poster_not_found,
-            info_text=cls.get_message_info_movie(movie),
-        )
+        movie_info: MovieInfo = cls.get_movie_info(movie, chat_id, search_id)
         return movie_info
+
+    @staticmethod
+    def random_movie() -> dict[str, Any]:
+        """We select a random movie by ID"""
+        logger.info("We select a random movie API")
+
+        for _ in range(5):
+            random_movie_id: int = get_secret_randint()
+            logger.debug("Random movie ID: %s", random_movie_id)
+
+            movie_data: dict[str, Any] = get_movie_by_id_api(random_movie_id)
+            logger.debug("Movie data: %s", movie_data)
+
+            if len(movie_data) > 3:
+                logger.info("Successful receipt of a random movie")
+                return movie_data
+
+        raise LimitIterateAPIError()

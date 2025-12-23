@@ -1,40 +1,41 @@
-from typing import Any
+import json
 
 from aiogram import F, Router
-from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InaccessibleMessage, InputMediaPhoto
 
+from database import get_movie_db
 from keyboards.inlines import build_movie_kb
-from utils import MovieInfo, build_poster_input
+from services import MessageMovie
+from utils import build_poster_input
 
 router = Router()
 
 
-@router.callback_query(F.data.in_({"movie_prev", "movie_next"}))
-async def paginate_movies_callback(callback: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    movies_raw: list[dict[str, Any]] = data.get("movies", [])
-    index: int = data.get("index", 0)
+@router.callback_query(F.data.startswith("{"))
+async def paginate_movies_callback(callback: CallbackQuery):
+    """ """
 
-    if not movies_raw:
+    data = callback.data
+
+    if not data:
         await callback.answer("Список фильмов пуст")
         return
 
-    total = len(movies_raw)
+    data_dict: dict[str, str | int] = json.loads(data)
 
-    if callback.data == "movie_prev" and index > 0:
-        index -= 1
-    elif callback.data == "movie_next" and index < total - 1:
-        index += 1
-    else:
-        await callback.answer()
+    chat_id = int(data_dict["c"])
+    search_id = str(data_dict["s"])
+    page = int(data_dict["pg"])
+
+    movie = await get_movie_db(chat_id, search_id, page)
+
+    if not movie:
+        await callback.answer("Список фильмов пуст")
         return
 
-    await state.update_data({"index": index})
-
-    movie = MovieInfo(**movies_raw[index])
     input_photo = build_poster_input(movie.poster_url)
-    kb = build_movie_kb(index, total)
+    message_movie = MessageMovie.get_message_info_movie(movie)
+    kb = build_movie_kb(chat_id, search_id, page)
 
     msg = callback.message
 
@@ -44,8 +45,13 @@ async def paginate_movies_callback(callback: CallbackQuery, state: FSMContext):
         return
 
     await msg.edit_media(
-        media=InputMediaPhoto(media=input_photo, caption=movie.info_text),
+        media=InputMediaPhoto(
+            media=input_photo,
+            caption=message_movie,
+        ),
         reply_markup=kb,
     )
-
-    await callback.answer()
+    await callback.answer(
+        text="Страница обновлена!",
+        show_alert=False,
+    )

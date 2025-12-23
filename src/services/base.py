@@ -1,7 +1,9 @@
 from typing import Any
 
 from api import get_movie_by_id_api
+from config import settings
 from logging_config import get_logger
+from utils import MovieInfo
 
 logger = get_logger(__name__)
 
@@ -11,36 +13,32 @@ class BaseService:
 
     is_budget: bool = True
     value_unknown: str = "неизвестно"
-    message_length_tg: int = 1024
-    ellipsis: str = "..."
 
     @classmethod
-    def get_message_info_movie(cls, movie: dict[str, Any]) -> str:
-        """Generating a film information message."""
-        description: str = movie.get("description") or "Описание отсутствует"
-        movie_name: str = movie.get("name") or cls.value_unknown
-        movie_or_series: str = "фильм" if movie["type"] == "movie" else "сериал"
-        duration: str = cls.get_duration_movie_or_series(movie)
-        budget: str = cls.get_budget_value(movie)
-        rating_imdb: float = movie["rating"]["imdb"]
-        rating_kp: float = round(movie["rating"]["kp"], 1)
-        countries: str = ", ".join(country["name"] for country in movie["countries"])
-        genres: str = ", ".join(genre["name"] for genre in movie["genres"])
-        year: str = movie["year"]
-
-        logger.info("Message successfully created")
-        return cls.set_message_length(
-            f"{description}\n\n"
-            f"<code>Название:</code> {movie_name}\n"
-            f"<code>Тип:</code> {movie_or_series}\n"
-            f"<code>Продолжительность:</code> {duration}\n"
-            f"<code>Бюджет:</code> {budget}\n"
-            f"<code>Рейтинг:</code> {rating_imdb} IMDb\n"
-            f"                      {rating_kp} КиноПоиск\n"
-            f"<code>Страны:</code> {countries}\n"
-            f"<code>Жанры:</code> {genres}\n"
-            f"<code>Премьера:</code> {year} год\n"
+    def get_movie_info(
+        cls,
+        movie: dict[str, Any],
+        chat_id: int,
+        search_id: str,
+        page: int = 1,
+    ) -> MovieInfo:
+        movie_info: MovieInfo = MovieInfo(
+            poster_url=(movie.get("poster") or {}).get("previewUrl") or settings.poiskkino_api.poster_not_found,
+            description=movie.get("description") or "Описание отсутствует",
+            name=movie.get("name") or cls.value_unknown,
+            movie_or_series="фильм" if movie["type"] == "movie" else "сериал",
+            duration=cls.get_duration_movie_or_series(movie),
+            budget=cls.get_budget_value(movie),
+            rating_imdb=movie["rating"]["imdb"],
+            rating_kp=round(movie["rating"]["kp"], 1),
+            countries=", ".join(country["name"] for country in movie["countries"]),
+            genres=", ".join(genre["name"] for genre in movie["genres"]),
+            year=movie["year"],
+            chat_id=chat_id,
+            search_id=search_id,
+            page=page,
         )
+        return movie_info
 
     @classmethod
     def get_duration_movie_or_series(cls, movie: dict[str, Any]) -> str:
@@ -74,26 +72,3 @@ class BaseService:
 
         logger.info("The budget value was successfully obtained")
         return f"{value}{currency}"
-
-    @classmethod
-    def set_message_length(cls, msg: str) -> str:
-        """Checking the message length and truncating it if it is exceeded"""
-        logger.info("Checking the message length")
-        current_msg_len: int = len(msg)
-
-        if current_msg_len <= cls.message_length_tg:
-            logger.info("The message length does not exceed the set size")
-            return msg
-
-        msg_lines: list[str] = msg.split("\n")
-
-        description: str = msg_lines[0]
-        number_char_to_del: int = current_msg_len - cls.message_length_tg - len(cls.ellipsis)
-
-        last_index: int = len(description) - number_char_to_del
-        last_space_index: int = description[:last_index].rfind(" ")
-
-        msg_lines[0] = description[:last_space_index] + cls.ellipsis
-
-        logger.info("Successfully trimmed the message")
-        return "\n".join(msg_lines)

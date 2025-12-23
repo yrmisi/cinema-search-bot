@@ -4,8 +4,8 @@ from aiogram.types import FSInputFile, Message, URLInputFile, User
 
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
-from services import RandomMovieService
-from utils import MovieInfo, build_poster_input
+from services import MessageMovie, RandomMovieService
+from utils import MovieInfo, build_poster_input, create_search_id
 
 logger = get_logger(__name__)
 router = Router()
@@ -21,11 +21,15 @@ async def random_movie_handler(message: Message):
             user.full_name,
             user.id,
         )
+    search_id: str = create_search_id()
     try:
-        movie_info: MovieInfo = RandomMovieService.get_random_movies()
+        movie_info: MovieInfo = RandomMovieService.get_random_movies(
+            message.chat.id,
+            search_id,
+        )
         input_photo: URLInputFile | FSInputFile = build_poster_input(movie_info.poster_url)
-
-        return await message.answer_photo(photo=input_photo, caption=movie_info.info_text)
+        message_movie: str = MessageMovie.get_message_info_movie(movie_info)
+        return await message.answer_photo(photo=input_photo, caption=message_movie)
     except LimitIterateAPIError as exc:
         logger.warning(exc.message)
         return await message.answer("🎬 К сожалению, сейчас не удалось найти фильм. Попробуйте снова через пару минут!")

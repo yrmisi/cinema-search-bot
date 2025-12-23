@@ -5,6 +5,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from config import settings
+from database import create_tables, on_shutdown
 from exceptions import TokenNotFoundError
 from handlers.custom import paginate_router, random_router, search_router
 from handlers.default import echo_router, help_router, start_router
@@ -38,6 +39,7 @@ async def main() -> None:
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     await get_set_commands(bot)
+    await create_tables()
 
     me = await bot.get_me()
     logger.info(
@@ -47,7 +49,11 @@ async def main() -> None:
         me.first_name or "cinema_search",
     )
     # And the run events dispatching
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await on_shutdown()
+
     logger.info(
         "Polling stopped for bot @%s id=%s - '%s'.",
         me.username,
