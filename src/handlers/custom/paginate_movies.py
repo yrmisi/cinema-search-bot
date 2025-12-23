@@ -3,7 +3,7 @@ import json
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, InaccessibleMessage, InputMediaPhoto
 
-from database import get_movie_db
+from database.repository import get_movie_db
 from keyboards.inlines import build_movie_kb
 from services import MessageMovieService
 from utils import build_poster_input

@@ -1,8 +1,8 @@
 from typing import Any
 
 from api import get_movies_by_data_api
-from database import create_movie_db
 from database.models import Movie
+from database.repository import create_movie_db
 from exceptions import PoiskkinoAPIError, SearchMovieNotFoundError
 from logging_config import get_logger
 from utils import MovieInfo, MovieSearchResult

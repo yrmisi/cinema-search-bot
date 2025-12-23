@@ -1,8 +1,8 @@
 from typing import Any
 
 from api import get_movie_by_id_api
-from database import create_movie_db
 from database.models import Movie
+from database.repository import create_movie_db
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
 from utils import MovieInfo, get_secret_randint
