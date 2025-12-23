@@ -29,14 +29,17 @@ async def search_by_name_handler(message: Message, state: FSMContext) -> Message
 
 
 @router.message(SearchMovieNameState.name)
-async def get_movie_by_name_handler(message: Message, state: FSMContext) -> Message:
+async def get_movie_by_name_handler(message: Message, state: FSMContext) -> Message | None:
     user: User | None = message.from_user
-    if user:
-        logger.info(
-            "The user (full name - %s, id - %s) entered the title of the film.",
-            user.full_name,
-            user.id,
-        )
+    if user is None:
+        logger.error("User not found")
+        return
+
+    logger.info(
+        "The user (full name - %s, id - %s) entered the title of the film.",
+        user.full_name,
+        user.id,
+    )
     await state.clear()
 
     movie_name: str | None = message.text
