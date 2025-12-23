@@ -21,7 +21,8 @@ def build_movie_kb(
                         "s_id": search_id,
                         "page": page - 1,
                         "total": total,
-                    }
+                    },
+                    separators=(",", ":"),
                 ),
             )
         )
@@ -35,7 +36,8 @@ def build_movie_kb(
                         "s_id": search_id,
                         "page": page + 1,
                         "total": total,
-                    }
+                    },
+                    separators=(",", ":"),
                 ),
             )
         )
