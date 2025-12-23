@@ -1,6 +1,8 @@
 from typing import Any
 
 from api import get_movie_by_id_api
+from database import create_movie_db
+from database.models import Movie
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
 from utils import MovieInfo, get_secret_randint
@@ -14,22 +16,23 @@ class RandomMovieService(BaseService):
     """ """
 
     @classmethod
-    def get_random_movies(
+    async def get_random_movies(
         cls,
         chat_id: int,
         search_id: str,
-    ) -> MovieInfo:
+    ) -> Movie:
         """ """
         logger.info("Film data processing.")
 
         try:
-            movie: dict[str, Any] = cls.random_movie()
+            movie_random: dict[str, Any] = cls.random_movie()
         except LimitIterateAPIError as exc:
             logger.warning(exc.message)
             raise
 
-        movie_info: MovieInfo = cls.get_movie_info(movie, chat_id, search_id)
-        return movie_info
+        movie_info: MovieInfo = cls.get_movie_info(movie_random, chat_id, search_id)
+        movie: Movie = await create_movie_db(movie_info)
+        return movie
 
     @staticmethod
     def random_movie() -> dict[str, Any]:
@@ -39,7 +42,6 @@ class RandomMovieService(BaseService):
         for _ in range(5):
             random_movie_id: int = get_secret_randint()
             logger.debug("Random movie ID: %s", random_movie_id)
-
             movie_data: dict[str, Any] = get_movie_by_id_api(random_movie_id)
             logger.debug("Movie data: %s", movie_data)
 

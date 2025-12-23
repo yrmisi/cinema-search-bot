@@ -2,10 +2,11 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import FSInputFile, Message, URLInputFile, User
 
+from database.models import Movie
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
 from services import MessageMovieService, RandomMovieService
-from utils import MovieInfo, build_poster_input, create_search_id
+from utils import build_poster_input, create_search_id
 
 logger = get_logger(__name__)
 router = Router()
@@ -23,12 +24,12 @@ async def random_movie_handler(message: Message):
         )
     search_id: str = create_search_id()
     try:
-        movie_info: MovieInfo = RandomMovieService.get_random_movies(
+        movie: Movie = await RandomMovieService.get_random_movies(
             message.chat.id,
             search_id,
         )
-        input_photo: URLInputFile | FSInputFile = build_poster_input(movie_info.poster_url)
-        message_movie: str = MessageMovieService.get_message_info_movie(movie_info)
+        input_photo: URLInputFile | FSInputFile = build_poster_input(movie.poster_url)
+        message_movie: str = MessageMovieService.get_message_info_movie(movie)
         return await message.answer_photo(photo=input_photo, caption=message_movie)
     except LimitIterateAPIError as exc:
         logger.warning(exc.message)
