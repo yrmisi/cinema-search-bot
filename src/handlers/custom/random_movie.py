@@ -13,15 +13,18 @@ router = Router()
 
 
 @router.message(Command("random"))
-async def random_movie_handler(message: Message):
+async def random_movie_handler(message: Message) -> Message | None:
     """The handler generates and sends a random movie or TV series."""
     user: User | None = message.from_user
-    if user:
-        logger.info(
-            "The user (full name - %s, id - %s) sent a random message",
-            user.full_name,
-            user.id,
-        )
+    if user is None:
+        logger.error("User not found")
+        return
+
+    logger.info(
+        "The user (full name - %s, id - %s) sent a random message",
+        user.full_name,
+        user.id,
+    )
     search_id: str = create_search_id()
     try:
         movie: Movie = await RandomMovieService.get_random_movies(
