@@ -17,10 +17,9 @@ def build_movie_kb(
                 text="⬅️ Назад",
                 callback_data=json.dumps(
                     {
-                        "a": "p",
-                        "c": chat_id,
-                        "s": search_id,
-                        "pg": page - 1,
+                        "c_id": chat_id,
+                        "s_id": search_id,
+                        "page": page - 1,
                     }
                 ),
             )
@@ -31,10 +30,9 @@ def build_movie_kb(
                 text="Вперёд ➡️",
                 callback_data=json.dumps(
                     {
-                        "a": "n",
-                        "c": chat_id,
-                        "s": search_id,
-                        "pg": page + 1,
+                        "c_id": chat_id,
+                        "s_id": search_id,
+                        "page": page + 1,
                     }
                 ),
             )

@@ -23,9 +23,9 @@ async def paginate_movies_callback(callback: CallbackQuery):
 
     data_dict: dict[str, str | int] = json.loads(data)
 
-    chat_id = int(data_dict["c"])
-    search_id = str(data_dict["s"])
-    page = int(data_dict["pg"])
+    chat_id = int(data_dict["c_id"])
+    search_id = str(data_dict["s_id"])
+    page = int(data_dict["page"])
 
     movie = await get_movie_db(chat_id, search_id, page)
 
@@ -51,7 +51,4 @@ async def paginate_movies_callback(callback: CallbackQuery):
         ),
         reply_markup=kb,
     )
-    await callback.answer(
-        text="Страница обновлена!",
-        show_alert=False,
-    )
+    await callback.answer(text="Страница обновлена!", show_alert=False)
