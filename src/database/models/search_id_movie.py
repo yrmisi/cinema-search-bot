@@ -10,7 +10,14 @@ if TYPE_CHECKING:
 
 
 class SearchIDMovie(Base):
-    __table_args__ = (UniqueConstraint("chat_id", "search_id", "movie_id", name="unique_chat_search_movie"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "chat_id",
+            "search_id",
+            "movie_id",
+            name="unique_chat_search_movie",
+        ),
+    )
     chat_id: Mapped[int]
     search_id: Mapped[str]
     movie_id: Mapped[int] = mapped_column(ForeignKey("movies.id"), nullable=True)
