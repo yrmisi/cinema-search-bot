@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, InaccessibleMessage, InputMediaPhoto
 
 from database import get_movie_db
 from keyboards.inlines import build_movie_kb
-from services import MessageMovie
+from services import MessageMovieService
 from utils import build_poster_input
 
 router = Router()
@@ -34,7 +34,7 @@ async def paginate_movies_callback(callback: CallbackQuery):
         return
 
     input_photo = build_poster_input(movie.poster_url)
-    message_movie = MessageMovie.get_message_info_movie(movie)
+    message_movie = MessageMovieService.get_message_info_movie(movie)
     kb = build_movie_kb(chat_id, search_id, page)
 
     msg = callback.message

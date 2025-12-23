@@ -4,7 +4,7 @@ from aiogram.types import FSInputFile, Message, URLInputFile, User
 
 from exceptions import LimitIterateAPIError
 from logging_config import get_logger
-from services import MessageMovie, RandomMovieService
+from services import MessageMovieService, RandomMovieService
 from utils import MovieInfo, build_poster_input, create_search_id
 
 logger = get_logger(__name__)
@@ -28,7 +28,7 @@ async def random_movie_handler(message: Message):
             search_id,
         )
         input_photo: URLInputFile | FSInputFile = build_poster_input(movie_info.poster_url)
-        message_movie: str = MessageMovie.get_message_info_movie(movie_info)
+        message_movie: str = MessageMovieService.get_message_info_movie(movie_info)
         return await message.answer_photo(photo=input_photo, caption=message_movie)
     except LimitIterateAPIError as exc:
         logger.warning(exc.message)

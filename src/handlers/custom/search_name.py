@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -10,7 +8,7 @@ from database.models import Movie
 from exceptions import PoiskkinoAPIError, SearchMovieNotFoundError
 from keyboards.inlines import build_movie_kb
 from logging_config import get_logger
-from services import MessageMovie, SearchMovieNameService
+from services import MessageMovieService, SearchMovieNameService
 from utils import SearchMovieNameState, build_poster_input, create_search_id
 
 logger = get_logger(__name__)
@@ -61,7 +59,7 @@ async def get_movie_by_name_handler(message: Message, state: FSMContext) -> Mess
         return await message.answer("🎬 К сожалению, сейчас не удалось найти фильм. Попробуйте снова через пару минут!")
 
     input_photo = build_poster_input(movie.poster_url)
-    message_movie: str = MessageMovie.get_message_info_movie(movie)
+    message_movie: str = MessageMovieService.get_message_info_movie(movie)
     kb = build_movie_kb(message.chat.id, search_id)
 
     await message.answer_photo(photo=input_photo, caption=message_movie, reply_markup=kb)

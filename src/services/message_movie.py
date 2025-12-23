@@ -5,7 +5,7 @@ from utils import MovieInfo
 logger = get_logger(__name__)
 
 
-class MessageMovie:
+class MessageMovieService:
     message_length_tg: int = 1024
     ellipsis: str = "..."
 
