@@ -1,6 +1,6 @@
 from typing import Any
 
-from api import get_movie_by_id_api
+from api_client import get_movie_by_id_api
 from config import settings
 from logging_config import get_logger
 from utils import MovieInfo

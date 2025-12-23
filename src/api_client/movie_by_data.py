@@ -29,17 +29,3 @@ def get_movies_by_data_api(add_search_params: dict[str, str]) -> list[dict[str, 
 
     logger.info("API data received successfully")
     return response.json().get("docs")
-
-
-def get_movie_by_id_api(movie_id: int) -> dict[str, Any]:
-    """Get a movie or TV series by ID."""
-    logger.debug(
-        "API URL with a random movie ID: %s",
-        settings.poiskkino_api.url_by_id.format(movie_id),
-    )
-    response = requests.get(
-        url=settings.poiskkino_api.url_by_id.format(movie_id),
-        headers=settings.poiskkino_headers,
-    )
-    logger.info("data received successfully from the API")
-    return response.json()

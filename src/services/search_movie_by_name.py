@@ -1,6 +1,6 @@
 from typing import Any
 
-from api import get_movies_by_data_api
+from api_client import get_movies_by_data_api
 from database.models import Movie
 from database.repository import create_movie_db
 from exceptions import PoiskkinoAPIError, SearchMovieNotFoundError

@@ -1,6 +1,6 @@
 from typing import Any
 
-from api import get_movie_by_id_api
+from api_client import get_movie_by_id_api
 from database.models import Movie
 from database.repository import create_movie_db
 from exceptions import LimitIterateAPIError
