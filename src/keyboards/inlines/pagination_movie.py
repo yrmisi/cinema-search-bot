@@ -1,0 +1,54 @@
+import json
+
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+
+def build_movie_kb(
+    chat_id: int,
+    search_id: str,
+    page: int,
+    total: int,
+) -> InlineKeyboardMarkup:
+    """ """
+    buttons: list[InlineKeyboardButton] = []
+    if page > 1:
+        buttons.append(
+            InlineKeyboardButton(
+                text="⬅️ Назад",
+                callback_data=json.dumps(
+                    {
+                        "c_id": chat_id,
+                        "s_id": search_id,
+                        "page": page - 1,
+                        "total": total,
+                    },
+                    separators=(",", ":"),
+                ),
+            )
+        )
+    if page < total:
+        buttons.append(
+            InlineKeyboardButton(
+                text="Вперёд ➡️",
+                callback_data=json.dumps(
+                    {
+                        "c_id": chat_id,
+                        "s_id": search_id,
+                        "page": page + 1,
+                        "total": total,
+                    },
+                    separators=(",", ":"),
+                ),
+            )
+        )
+    button_info = [
+        InlineKeyboardButton(
+            text=f"{page} из {total} 🎥",
+            callback_data="movie_info",
+        )
+    ]
+    return (
+        InlineKeyboardMarkup(inline_keyboard=[buttons, button_info])
+        if buttons
+        else InlineKeyboardMarkup(inline_keyboard=[button_info])
+    )

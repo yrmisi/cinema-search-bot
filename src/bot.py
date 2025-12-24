@@ -1,37 +1,70 @@
 import asyncio
-import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from config import settings
-from handlers.default import echo_router, start_router
+from database import create_tables, on_shutdown
+from exceptions import TokenNotFoundError
+from handlers.custom import paginate_router, random_router, search_router
+from handlers.default import echo_router, help_router, start_router
+from logging_config import get_logger
+from utils import get_set_commands
+
+logger = get_logger(__name__)
 
 
 async def main() -> None:
+    logger.info("Start polling.")
     # Dispatcher is a root router
     dp = Dispatcher()
     # Register all the routers from handlers package
     dp.include_routers(
         start_router,
+        help_router,
+        paginate_router,
+        search_router,
+        random_router,
         echo_router,
     )
     token: str | None = settings.bot_conf.token
 
     if token is None:
-        raise RuntimeError("BOT_TOKEN is not set in environment")
+        raise TokenNotFoundError()
 
     # Initialize Bot instance with default bot properties which will be passed to all API calls
     bot = Bot(
         token=token,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
+    await get_set_commands(bot)
+    await create_tables()
 
+    me = await bot.get_me()
+    logger.info(
+        "Run polling for bot @%s id=%s - '%s'.",
+        me.username,
+        me.id,
+        me.first_name or "cinema_search",
+    )
     # And the run events dispatching
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await on_shutdown()
+
+    logger.info(
+        "Polling stopped for bot @%s id=%s - '%s'.",
+        me.username,
+        me.id,
+        me.first_name or "cinema_search",
+    )
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+        logger.info("Polling stopped")
+    except TokenNotFoundError as exc:
+        logger.error(exc.message)

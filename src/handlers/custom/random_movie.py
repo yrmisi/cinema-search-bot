@@ -1,0 +1,39 @@
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import FSInputFile, Message, URLInputFile, User
+
+from database.models import Movie
+from exceptions import LimitIterateAPIError
+from logging_config import get_logger
+from services import MessageMovieService, RandomMovieService
+from utils import build_poster_input, create_search_id
+
+logger = get_logger(__name__)
+router = Router()
+
+
+@router.message(Command("random"))
+async def random_movie_handler(message: Message) -> Message | None:
+    """The handler generates and sends a random movie or TV series."""
+    user: User | None = message.from_user
+    if user is None:
+        logger.error("User not found")
+        return
+
+    logger.info(
+        "The user (full name - %s, id - %s) sent a random message",
+        user.full_name,
+        user.id,
+    )
+    search_id: str = create_search_id()
+    try:
+        movie: Movie = await RandomMovieService.get_random_movies(
+            message.chat.id,
+            search_id,
+        )
+        input_photo: URLInputFile | FSInputFile = build_poster_input(movie.poster_url)
+        message_movie: str = MessageMovieService.get_message_info_movie(movie)
+        return await message.answer_photo(photo=input_photo, caption=message_movie)
+    except LimitIterateAPIError as exc:
+        logger.warning(exc.message)
+        return await message.answer("🎬 К сожалению, сейчас не удалось найти фильм. Попробуйте снова через пару минут!")

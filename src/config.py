@@ -23,6 +23,9 @@ class PoiskkinoAPIConfig(BaseSettings):
     """ """
 
     key: Annotated[str | None, Field(alias="API_KEY")] = None
+    url_search: str = "https://api.kinopoisk.dev/v1.4/movie/search"
+    url_by_id: str = "https://api.kinopoisk.dev/v1.4/movie/{}"
+    poster_not_found: str = BASE_DIR.joinpath("src", "images", "poster_not_found.png").as_posix()
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / '.env',
@@ -36,6 +39,11 @@ class Settings(BaseModel):
 
     bot_conf: BotConfig = BotConfig()
     poiskkino_api: PoiskkinoAPIConfig = PoiskkinoAPIConfig()
+
+    @property
+    def poiskkino_headers(self) -> dict[str, str]:
+        """ """
+        return {"accept": "application/json", "X-API-KEY": self.poiskkino_api.key or ""}
 
 
 settings = Settings()
